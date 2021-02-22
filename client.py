@@ -8,35 +8,27 @@ import time
 import sched
 
 def create_temps(): 
-    heat = random.randrange(-2147, 2147)
-    hum = random.randrange(-2147, 2147)
-    packed = pack('ii', heat, hum)
+    heat = random.randrange(-1000, 2000)
+    hum = random.randrange(0, 1000)
+    packed = pack('<hH', heat, hum)
     return base64.b64encode(packed)
 
-def sendMsg(s):
-    msg = create_temps()
-    s.send(msg)
+def send_message(connection):
+        msg = create_temps()
+        connection.sendall(msg)
 
-#def generateTemps(): 
+HOST = '127.0.0.1'    
+PORT = 50010 
+connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+scheduler = sched.scheduler(time.time, time.sleep)
 
-    
-
-HOST = '127.0.0.1'    # The remote 
-PORT = 50010          # The same port as used by the server
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((HOST, PORT))
-schedule = sched.scheduler(time.time, time.sleep)
-schedule.enter(10, 1, sendMsg(s))
-
-
-#msg = "hello world"
-#s.sendall(msg.encode())
-#encoded = create_temps()
-
-#encoded = base64.b64encode(temps)
-#s.send(encoded)
-data = s.recv(1024)
-
-
-s.close()
-print ('Received', repr(data))
+for _ in range(5):
+    try: 
+        connection.connect((HOST, PORT))
+        starttime = time.time()
+        while True:
+            send_message(connection)
+            time.sleep(10)
+    except:    
+        print('Something went wrong:', socket.error)
+        print('attempting to reconnect.')
