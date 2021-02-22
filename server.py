@@ -19,7 +19,6 @@ def read_temps(data):
 def recalc(condition):
     return condition * 10**-2 
 
-
 class client(Thread):
     def __init__(self, socket, address):
         Thread.__init__(self)
